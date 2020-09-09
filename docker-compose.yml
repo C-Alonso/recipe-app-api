@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  #Name of the service
+  app:
+    build:
+      #Context: current directory
+      context: .
+    ports:
+      - "8000:8000"
+    #The volumes allow the changes made to the files, to be applied directly to the Docker image
+    #(without having to rebuild).
+    volumes:
+    #From the app directory in our project to the app directory that we created inside our Docker image.
+      - ./app:/app
+    command: >      
+      sh -c "python manage.py runserver 0.0.0.0:8000"
