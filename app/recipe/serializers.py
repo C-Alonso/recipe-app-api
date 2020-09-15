@@ -42,3 +42,12 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'ingredients', 'tags', 'time_minutes',
                   'price', 'link')
         raad_only_fields = ('id',)  # So it can't be updated by the user.
+
+
+# We are gonna re-use the RecipeSerializer:
+class RecipeDetailSerializer(RecipeSerializer):
+    """Serialize a Recipe detail"""
+    # We nest a serializer inside our serializer.
+    # Many ingredients associated with a recipe.
+    ingredients = IngredientSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
