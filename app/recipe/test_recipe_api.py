@@ -191,3 +191,51 @@ class PrivateRecipeAPITests(TestCase):
         # And that they were the right ones.
         self.assertIn(ingredient, ingredients)
         self.assertIn(ingredient2, ingredients)
+
+    def test_partial_update_recipe(self):
+        """Test: updating a recipe using PATCH"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        new_tag = sample_tag(user=self.user, name='Curry')
+
+        payload = {
+            'title': 'Chipotle chicken',
+            'tags': new_tag.id
+            }
+
+        url = detail_url(recipe.id)
+        # We patch the Recipe.
+        self.client.patch(url, payload)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(recipe.title, payload['title'])
+
+        # And now we check the tags.
+        tags = recipe.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertIn(new_tag, tags)
+
+    def test_full_update_recipe(self):
+        """Test: updating a recipe using PUT"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+        payload = {
+            'title': 'Spaghetti Carbonara',
+            'time_minutes': 25,
+            'price': 5.00
+        }
+
+        url = detail_url(recipe.id)
+        self.client.put(url, payload)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(recipe.title, payload['title'])
+        self.assertEqual(recipe.time_minutes, payload['time_minutes'])
+        self.assertEqual(recipe.price, payload['price'])
+
+        # And we check that the recipe contains no tags
+        # as we didn't add new ones in the payload.
+        tags = recipe.tags.all()
+        self.assertEqual(len(tags), 0)
