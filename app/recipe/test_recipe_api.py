@@ -132,3 +132,62 @@ class PrivateRecipeAPITests(TestCase):
         serializer = RecipeDetailSerializer(recipe)
 
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_recipe(self):
+        """Test: creating recipe"""
+        payload = {
+            'title': 'Chocolate cheescake',
+            'time_minutes': 60,
+            'price': 5.00
+        }
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        for key in payload.keys():  # getattr(recipe, key) is like recipe.key
+            self.assertEqual(payload[key], getattr(recipe, key))
+
+    def test_create_recipe_with_tags(self):
+        """Test: creating a recipe with tags"""
+        tag = sample_tag(self.user, name='Dessert')
+        tag2 = sample_tag(self.user, name='Vegan')
+        payload = {
+            'title': 'Mint cake',
+            'tags': {tag.id, tag2.id},
+            'time_minutes': 60,
+            'price': 5.00
+        }
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        tags = recipe.tags.all()
+
+        # We check that we received 2 tags back.
+        self.assertEqual(len(tags), 2)
+        # And that they were the right ones.
+        self.assertIn(tag, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_recipe_with_ingredients(self):
+        ingredient = sample_ingredient(user=self.user, name='Cheese')
+        ingredient2 = sample_ingredient(user=self.user, name='Cake')
+        payload = {
+            'title': 'Cheese cake',
+            'ingredients': {ingredient.id, ingredient2.id},
+            'time_minutes': 45,
+            'price': 4.60
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        ingredients = recipe.ingredients.all()
+
+        # We check that we received 2 ingredients back.
+        self.assertEqual(len(ingredients), 2)
+        # And that they were the right ones.
+        self.assertIn(ingredient, ingredients)
+        self.assertIn(ingredient2, ingredients)

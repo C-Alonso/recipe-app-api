@@ -64,3 +64,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeDetailSerializer
         # Else, we return the normal serializer class
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new recipe"""
+        # It will use the appropriate serializer
+        # (determined according to the get_serializer_class function).
+        serializer.save(user=self.request.user)
