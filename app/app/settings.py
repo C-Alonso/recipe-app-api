@@ -127,4 +127,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+# f.e.: localhost/media/
+
+# We tell django where to store the media files.
+# (as per our Dockerfile).
+MEDIA_ROOT = '/vol/web/media'
+# We tell django where to get the static files from.
+STATIC_ROOT = '/vol/web/static'
+
 AUTH_USER_MODEL = 'core.User'
