@@ -102,7 +102,7 @@ class PrivateIngredientsAPITests(TestCase):
 
         res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
 
-        serializer = IngredientsSerializer(ingredient)
+        serializer = IngredientSerializer(ingredient)
         serializer2 = IngredientSerializer(ingredient2)
 
         self.assertIn(serializer.data, res.data)
@@ -116,7 +116,7 @@ class PrivateIngredientsAPITests(TestCase):
             user=self.user,
             name='Shevo'
         )
-        ingredient2 = Ingredient.objects.create(
+        Ingredient.objects.create(
             user=self.user,
             name='More Shevo'
         )
@@ -138,4 +138,3 @@ class PrivateIngredientsAPITests(TestCase):
         res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
 
         self.assertEqual(len(res.data), 1)
-

@@ -88,7 +88,8 @@ class PrivateTagsApiTest(TestCase):
 
     def test_retrieve_tags_assigned_to_recipes(self):
         """Test: filter tags assigned to recipes"""
-        unassigned_tag = Tag.objects.create(user=self.user, name='Unassigned tag')
+        unassigned_tag = Tag.objects.create(user=self.user,
+                                            name='Unassigned tag')
         recipe = Recipe.objects.create(
             title='Recipe 1',
             time_minutes=5,
@@ -114,7 +115,7 @@ class PrivateTagsApiTest(TestCase):
     # doesn't happen:
     def test_retrieve_tags_assigned_unique(self):
         """Test: filtering assigned tags returns unique items"""
-        unassigned_tag = Tag.objects.create(user=self.user, name='Unassigned tag')
+        Tag.objects.create(user=self.user, name='Unassigned tag')
         assigned_tag = Tag.objects.create(user=self.user, name='Assigned tag')
         recipe = Recipe.objects.create(
             title='Recipe 1',

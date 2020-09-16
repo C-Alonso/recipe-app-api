@@ -34,8 +34,7 @@ class BaseRecipeAttrViewset(viewsets.GenericViewSet,
         # The following line will work because authentication is required.
         return queryset.filter(
             user=self.request.user
-            ).order_by('-name'
-            ).distinct()
+            ).order_by('-name').distinct()
 
     # We overwrite the create function.
     # The user will be the authenticated user.
