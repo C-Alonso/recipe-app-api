@@ -22,8 +22,20 @@ class BaseRecipeAttrViewset(viewsets.GenericViewSet,
     # We overwrite the get_queryset() function.
     def get_queryset(self):
         """Returning objects for the current authenticated user only"""
+        # Here we implement the filtering feature.
+        assigned_only = bool(
+            # Passing 0 as default value.
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+
         # The following line will work because authentication is required.
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        return queryset.filter(
+            user=self.request.user
+            ).order_by('-name'
+            ).distinct()
 
     # We overwrite the create function.
     # The user will be the authenticated user.
