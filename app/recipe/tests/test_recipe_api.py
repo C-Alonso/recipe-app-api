@@ -287,3 +287,65 @@ class RecipeImageUploadTests(TestCase):
         res = self.client.post(url, {'image': 'noImage'}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_recipes_by_tags(self):
+        """Test: returning recipes with specific tags"""
+        # We create 2 recipes with tags.
+        # 1st recipe.
+        recipeWithTag = sample_recipe(user=self.user, title='Recipe with tag')
+        new_tag = sample_tag(user=self.user, name='Vegan')
+        recipeWithTag.tags.add(new_tag)
+        # 2nd recipe.
+        recipeWithTag2 = sample_recipe(user=self.user,
+                                       title='Another recipe with tag')
+        new_tag2 = sample_tag(user=self.user, name='Curry')
+        recipeWithTag2.tags.add(new_tag2)
+        # And one recipe withoug a tag.
+        recipeNoTag = sample_recipe(user=self.user, title='Recipe no tag')
+
+        res = self.client.get(
+            RECIPES_URL,
+            # We pass the GET parameters:
+            {'tags': f'{new_tag.id},{new_tag2.id}'}
+        )
+
+        serializer = RecipeSerializer(recipeWithTag)
+        serializer2 = RecipeSerializer(recipeWithTag2)
+        serializer3 = RecipeSerializer(recipeNoTag)
+
+        self.assertIn(serializer.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)
+
+    def test_filter_recipe_by_ingredients(self):
+        """Test: returning recipes with specific ingredients"""
+        # We create 2 recipes with ingredients.
+        # 1st recipe.
+        recipeWithIngredient = sample_recipe(user=self.user,
+                                             title='Recipe with ingredient')
+        new_ingredient = sample_ingredient(user=self.user,
+                                           name='Ingredient 1')
+        recipeWithIngredient.ingredients.add(new_ingredient)
+        # 2nd recipe.
+        recipeWithIngredient2 = sample_recipe(user=self.user,
+                                              title='Another recipe with tag')
+        new_ingredient2 = sample_ingredient(user=self.user,
+                                            name='Ingredient 2')
+        recipeWithIngredient2.ingredients.add(new_ingredient2)
+        # And one recipe withoug an ingredient.
+        recipeNoIngredient = sample_recipe(user=self.user,
+                                           title='Recipe no ingredient')
+
+        res = self.client.get(
+            RECIPES_URL,
+            # We pass the GET parameters:
+            {'ingredients': f'{new_ingredient.id},{new_ingredient2.id}'}
+        )
+
+        serializer = RecipeSerializer(recipeWithIngredient)
+        serializer2 = RecipeSerializer(recipeWithIngredient2)
+        serializer3 = RecipeSerializer(recipeNoIngredient)
+
+        self.assertIn(serializer.data, res.data)
+        self.assertIn(serializer2.data, res.data)
+        self.assertNotIn(serializer3.data, res.data)

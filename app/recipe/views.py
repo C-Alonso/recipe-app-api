@@ -56,9 +56,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs):
+        # (The _ indicates that the function is intended to be private).
+        """Convert a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(',')]
+        # Equivalent to:
+        # the_string = '1,2,3'
+        # the_string_list = ['1','2','3']
+        # the_string_list_as_int = [1,2,3]
+
     def get_queryset(self):
-        """Retrieve only the objects for the authenticated user."""
-        return Recipe.objects.filter(user=self.request.user).order_by('-id')
+        """Retrieve only the objects for the authenticated user"""
+        # We get the query parameters:
+        tags = self.request.query_params.get('tags')  # Search for 'tag' key
+        ingredients = self.request.query_params.get('ingredients')
+        queryset = self.queryset  # This is what we will return.
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            # We filter the queryset to contain only the tags in tag_ids.
+            # Django syntax to filter on foreign key objects.
+            # Tags field in the recipe query set.
+            # Find the id's in the Tags table.
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredients_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredients_ids)
+
+        return queryset.filter(user=self.request.user).order_by('-id')
 
     def get_serializer_class(self):
         """Return appropriate serializer class"""
